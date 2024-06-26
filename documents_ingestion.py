@@ -1,13 +1,12 @@
 import os
 from PyPDF2 import PdfReader
-from es_client import es_client
+from es_client import create_es_client
+
+HOST='http://localhost:9200'
 
 def read_pdf(file_path):
     with open(file_path, 'rb') as file:
         pdf_reader = PdfReader(file)
-
-        num_pages = len(pdf_reader.pages)
-
         text = ''
         for page in pdf_reader.pages:
             text += page.extract_text()
@@ -22,13 +21,13 @@ for pdf_file in pdf_files:
     file_path = os.path.join(directory_path, pdf_file)
     try:
         pdf_text = read_pdf(file_path)
-        print(f'Text from {pdf_file}:\n{pdf_text}\n')
         data = {
             "text": pdf_text,
             "metadata": {
                 "filename": pdf_file
             }
         }
-        es_client.index(index="documents_ingestion", body=data)
+        response = create_es_client(HOST).search(index="documents_ingestion", body=data)
+        print(response)
     except Exception as e:
         print(f'Failed to read {pdf_file}: {e}')

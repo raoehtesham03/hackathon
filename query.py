@@ -1,7 +1,6 @@
 from langchain_chroma import Chroma
 from langchain_openai import OpenAIEmbeddings, OpenAI, ChatOpenAI
 from dotenv import load_dotenv
-from langchain_openai import OpenAI
 import os
 from langchain_core.prompts import PromptTemplate
 from langchain_core.runnables import RunnablePassthrough
@@ -14,12 +13,15 @@ openai_api_key = os.getenv('OPENAI_API_KEY')
 embeddings = OpenAIEmbeddings(openai_api_key=openai_api_key, model="text-embedding-3-large")
 
 vectordb = Chroma(persist_directory="./vectorstore", embedding_function=embeddings)
-retriever = vectordb.as_retriever(search_type='similarity', search_kargs={'k': 1})
+retriever = vectordb.as_retriever(search_type='similarity', search_kargs={'k': 1000})
 
 llm = ChatOpenAI(model="gpt-4-turbo", openai_api_key=openai_api_key)
 
+docs = vectordb.query(query_texts=['Ball in court'])
+print(docs)
+
 prompt_template = PromptTemplate.from_template("""                              
-Mechanical, Electrical, and Plumbing (MEP) Engineering Question Answering System, maintenance related questions.                  
+Mechanical, Electrical, and Plumbing (MEP) Engineering Question Answering System, maintenance related questions.                                                        
 Context: {context}
 Question: {question}
 """)
@@ -30,9 +32,3 @@ rag_chain = (
     | llm
     | StrOutputParser()
 )
-
-while True:
-   question = input("Ask a question: ")
-   result = rag_chain.invoke(question)
-   print("Answer", result)
-

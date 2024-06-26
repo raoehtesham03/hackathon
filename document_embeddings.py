@@ -1,9 +1,10 @@
 import os
 from dotenv import load_dotenv
 from langchain_openai import OpenAIEmbeddings
-from es_client import es_client
+from es_client import create_es_client
 from langchain_experimental.text_splitter import SemanticChunker
 from langchain_chroma import Chroma
+from constants import HOST
 
 load_dotenv()
 
@@ -16,7 +17,14 @@ text_splitter = SemanticChunker(
     breakpoint_threshold_type="gradient",
 )
 
-response = es_client.search(index="documents_ingestion", body={"query": {"match_all": {}}})
+query = {
+  "query": {
+    "match_all": {}
+  },
+  "size": 100
+}
+
+response = create_es_client(HOST).search(index="documents_ingestion", body=query)
 
 documents = []
 
