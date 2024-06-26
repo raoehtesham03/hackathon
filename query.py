@@ -17,9 +17,6 @@ retriever = vectordb.as_retriever(search_type='similarity', search_kargs={'k': 1
 
 llm = ChatOpenAI(model="gpt-4-turbo", openai_api_key=openai_api_key)
 
-docs = vectordb.query(query_texts=['Ball in court'])
-print(docs)
-
 prompt_template = PromptTemplate.from_template("""                              
 Mechanical, Electrical, and Plumbing (MEP) Engineering Question Answering System, maintenance related questions.                                                        
 Context: {context}

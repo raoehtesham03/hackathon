@@ -1,8 +1,7 @@
 import os
 from PyPDF2 import PdfReader
 from es_client import create_es_client
-
-HOST='http://localhost:9200'
+from constants import HOST
 
 def read_pdf(file_path):
     with open(file_path, 'rb') as file:
@@ -10,7 +9,7 @@ def read_pdf(file_path):
         text = ''
         for page in pdf_reader.pages:
             text += page.extract_text()
-
+        file.close()
     return text
 
 directory_path = 'documents'
@@ -27,7 +26,6 @@ for pdf_file in pdf_files:
                 "filename": pdf_file
             }
         }
-        response = create_es_client(HOST).search(index="documents_ingestion", body=data)
-        print(response)
+        create_es_client(HOST).index(index="documents_ingestion", body=data)
     except Exception as e:
         print(f'Failed to read {pdf_file}: {e}')
